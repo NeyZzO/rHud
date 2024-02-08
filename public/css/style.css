@@ -3,46 +3,82 @@
     margin: 0;
 }
 
+/* body {
+    background: url('https://playerassist.com/wp-content/uploads/2022/04/featured-image-5-open-iv.png') fixed no-repeat;
+    background-size: contain;
+} */
 
 #squareHud {
     position: absolute;
     bottom: 0;
     left: 0;
+    display: flex;
 }
 
 #squareHud .component {
     margin: 10px;
-    background-color: #415057;
-    width: 2.8rem;
-    height: 2.8rem;
-    border-radius: 5px;
-    overflow: hidden;
+    margin-bottom: 0;
+    /* background-color: #415057; */
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 8px;
+    overflow: hidden !important;
+    margin-left: -4px;
+    /* border: 1px solid blue; */
+}
+
+#squareHud .component#health {
+    margin-left: 2rem;
 }
 
 #squareHud .component .icon {
-    width: 1.8rem;
-    height: 1.8rem;
-    z-index: 1;
+    width: 1.5rem;
+    height: 1.5rem;
+    z-index: 100 !important;
     margin: 0.5rem;
 }
 
-/* #squareHud .component .bg {
+#squareHud .component .bg {
     background-color: #415057;
     position: absolute;
-    top: 10px;
-    bottom: 10px;
+    /* top: 10px; */
+    /* bottom: 10px; */
     width: inherit;
     height: inherit;
     z-index: -10;
     border-radius: inherit;
-} */
+}
 
 #squareHud .component .progress {
     background-color: #439e33;
     position: absolute;
-    bottom: 10px;
+    bottom: 0;
     width: inherit;
-    height: 10%;
-    z-index: 1;
-    border-radius: inherit;
+    height: 1.4rem;
+    z-index: -1;
+    border-radius: 0 0 8px 8px;
+}
+
+#health div.progress {
+    background-color: #eb4034 !important;
+}
+
+#armor div.progress {
+    background-color: #3468eb !important;
+}
+
+#hunger div.progress {
+    background-color: #eb9f34 !important;
+}
+
+#thirst div.progress {
+    background-color: #34eba2 !important;
+}
+
+#oxygen div.progress {
+    background-color: #c034eb !important;
+}
+
+#stamina div.progress {
+    background-color: #439e33 !important;
 }
