@@ -11,29 +11,34 @@
 #squareHud {
     position: absolute;
     bottom: 0;
-    left: 0;
+    left: 1.45vw;
+    min-width: 16.8rem;
+    max-width: 16.8rem;
+    /* border: 1px solid blue; */
     display: flex;
+    /* align-content: center; */
+    justify-content: center;
 }
 
 #squareHud .component {
-    margin: 10px;
+    margin-left: 10px;
     margin-bottom: 0;
     /* background-color: #415057; */
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 2.2rem;
+    height: 2.2rem;
     border-radius: 8px;
     overflow: hidden !important;
-    margin-left: -4px;
+    /* margin-left: -4px; */
     /* border: 1px solid blue; */
 }
 
 #squareHud .component#health {
-    margin-left: 2rem;
+    margin-left: 0;
 }
 
 #squareHud .component .icon {
-    width: 1.5rem;
-    height: 1.5rem;
+    width: 1.2rem;
+    height: 1.2rem;
     z-index: 100 !important;
     margin: 0.5rem;
 }
