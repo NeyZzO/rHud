@@ -4,6 +4,7 @@ MinimapScaleform = {
 }
 hunger, thirst = nil
 
+local health, armor, hunger, thirst
 
 local function getMinimap()
     return MinimapScaleform.scaleform
@@ -136,7 +137,18 @@ end)
 
 Citizen.CreateThread(function()
     while true do
-        Citizen.Wait(100)
-        SendNUIMessage({type= 'sethealth', value= GetEntityHealth(PlayerPedId())})
+        Citizen.Wait(10)
+        local hl = GetEntityHealth(PlayerPedId())
+        if hl ~= health then
+            SendNUIMessage({type= 'sethealth', value= hl})
+            health = hl
+        end
+
+        local ar = GetPedArmour(PlayerPedId())
+        if ar ~= armor then 
+            armor = ar
+            SendNUIMessage({type= 'setarmor', value= ar})
+        end
+
     end
 end)
