@@ -1,101 +1,11 @@
+local toggled = true
 
 MinimapScaleform = {
     scaleform = nil,
 }
-hunger, thirst = nil
 
-local health, armor, hunger, thirst
-
-local function getMinimap()
-    return MinimapScaleform.scaleform
-end
-
-function SetSatNavDirection(direction)
-    local dir = SatNav[direction]
-    if type(direction) == 'number' then
-        dir = direction
-    end
-    if dir then
-        BeginScaleformMovieMethod(getMinimap(), "SET_SATNAV_DIRECTION")
-        ScaleformMovieMethodAddParamInt(dir.icon)
-        EndScaleformMovieMethod()
-    end
-end
-
-function SetSatNavDistance(distance)
-    BeginScaleformMovieMethod(getMinimap(), "SET_SATNAV_DISTANCE")
-    ScaleformMovieMethodAddParamInt(distance)
-    EndScaleformMovieMethod()
-end
-
-function SetSatNavState(show)
-    BeginScaleformMovieMethod(getMinimap(), (show and "SHOW_SATNAV" or "HIDE_SATNAV"))
-    EndScaleformMovieMethod()
-end
-
-function SetStallWarningState(show)
-    BeginScaleformMovieMethod(getMinimap(), "SHOW_STALL_WARNING")
-    ScaleformMovieMethodAddParamBool(show)
-    EndScaleformMovieMethod()
-end
-
-function SetAbilityGlow(show)
-    BeginScaleformMovieMethod(getMinimap(), "SET_ABILITY_BAR_GLOW")
-    ScaleformMovieMethodAddParamBool(show)
-    EndScaleformMovieMethod()
-end
-
-function SetAbilityVisible(show)
-    BeginScaleformMovieMethod(getMinimap(), "SET_ABILITY_BAR_VISIBILITY_IN_MULTIPLAYER")
-    ScaleformMovieMethodAddParamBool(show)
-    EndScaleformMovieMethod()
-end
-
-function ShowYoke(x, y, vis, alpha)
-    BeginScaleformMovieMethod(getMinimap(), "SHOW_YOKE")
-    ScaleformMovieMethodAddParamFloat(show)
-    ScaleformMovieMethodAddParamFloat(show)
-    ScaleformMovieMethodAddParamBool(show)
-    ScaleformMovieMethodAddParamInt(alpha)
-    EndScaleformMovieMethod()
-end
-
-function SetHealthArmorType(type)
-    BeginScaleformMovieMethod(getMinimap(), "SETUP_HEALTH_ARMOUR")
-    ScaleformMovieMethodAddParamInt(type)
-    EndScaleformMovieMethod()
-end
-
-function SetHealthAmount(amount)
-    BeginScaleformMovieMethod(getMinimap(), "SET_PLAYER_HEALTH")
-    ScaleformMovieMethodAddParamInt(amount)
-    ScaleformMovieMethodAddParamFloat(0)
-    ScaleformMovieMethodAddParamFloat(2000)
-    ScaleformMovieMethodAddParamBool(false)
-    EndScaleformMovieMethod()
-end
-
-function SetArmorAmount(amount)
-    BeginScaleformMovieMethod(getMinimap(), "SET_PLAYER_ARMOUR")
-    ScaleformMovieMethodAddParamInt(amount)
-    ScaleformMovieMethodAddParamFloat(0)
-    ScaleformMovieMethodAddParamFloat(2000)
-    EndScaleformMovieMethod()
-end
-
-function SetAbilityAmount(amount)
-    BeginScaleformMovieMethod(getMinimap(), "SET_ABILITY_BAR")
-    ScaleformMovieMethodAddParamInt(amount)
-    ScaleformMovieMethodAddParamInt(0)
-    ScaleformMovieMethodAddParamFloat(100)
-    EndScaleformMovieMethod()
-end
-
-function SetAirAmount(amount)
-    BeginScaleformMovieMethod(getMinimap(), "SET_AIR_BAR")
-    ScaleformMovieMethodAddParamFloat(amount)
-    EndScaleformMovieMethod()
-end
+local health, armor, hunger, thirst = 0,0,0,0
+local nuiLoaded = false
 
 Citizen.CreateThread(function()
     MinimapScaleform.scaleform = RequestScaleformMovie("minimap")
@@ -115,6 +25,12 @@ Citizen.CreateThread(function()
         ScaleformMovieMethodAddParamInt(3)
         EndScaleformMovieMethod()
     end
+end)
+
+RegisterNUICallback('hudLoaded', function(data, cb)
+    nuiLoaded = true
+    local plyState = Player(-1).state.proximity.index
+    cb({voiceState = Player(-1).state.proximity.index})
 end)
 
 
@@ -137,18 +53,75 @@ end)
 
 Citizen.CreateThread(function()
     while true do
-        Citizen.Wait(10)
-        local hl = GetEntityHealth(PlayerPedId())
-        if hl ~= health then
+        if nuiLoaded then
+            local hl = GetEntityHealth(PlayerPedId())
             SendNUIMessage({type= 'sethealth', value= hl})
-            health = hl
-        end
 
-        local ar = GetPedArmour(PlayerPedId())
-        if ar ~= armor then 
-            armor = ar
-            SendNUIMessage({type= 'setarmor', value= ar})
+            local ar = GetPedArmour(PlayerPedId())
+            if ar ~= armor then
+                armor = ar
+                SendNUIMessage({type= 'setarmor', value= ar})
+            end
         end
-
+        Citizen.Wait(10)
     end
+end)
+
+CreateThread(function()
+    while true do
+        if nuiLoaded then
+            TriggerEvent('esx_status:getStatus', 'hunger', function(status)
+                hunger = status.val
+                SendNUIMessage({type="sethunger", value=hunger / 10000})
+            end)
+
+            TriggerEvent('esx_status:getStatus', 'thirst', function(status)
+                thirst = status.val
+                SendNUIMessage({type="setthirst", value=thirst / 10000})
+            end)
+
+        end
+        Citizen.Wait(2000)
+    end
+end)
+
+
+local oxygen = 40
+CreateThread(function()
+    while true do
+        if IsPedSwimmingUnderWater(PlayerPedId()) then
+            oxygen = GetPlayerUnderwaterTimeRemaining(PlayerId())
+            SendNUIMessage({type="setoxygen", value=oxygen})
+        end
+        if oxygen < 40.0 and not IsPedSwimmingUnderWater(PlayerPedId()) then
+            oxygen += 1
+            SendNUIMessage({type="setoxygen", value=oxygen})
+        end
+        Citizen.Wait(5)
+    end
+end)
+
+AddEventHandler('pma-voice:setTalkingMode', function(newTalkingRange)
+    SendNUIMessage({type="voicerange", value=newTalkingRange})
+end)
+
+
+CreateThread(function()
+    local talking = false
+    while true do
+        if NetworkIsPlayerTalking(PlayerId()) and talking == false then
+            SendNUIMessage({type="talking", value= true})
+            talking = true
+        elseif not NetworkIsPlayerTalking(PlayerId()) and talking == true then
+            SendNUIMessage({type="talking", value= false})
+            talking = false
+        end
+        Citizen.Wait(5)
+    end
+end)
+
+RegisterNetEvent('rHud:toggle')
+AddEventHandler('rHud:toggle', function(bool)
+    toggled = bool
+    SendNUIMessage({type="toggle", value=toggled})
 end)

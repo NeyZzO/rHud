@@ -24,8 +24,8 @@
     margin-left: 10px;
     margin-bottom: 0;
     /* background-color: #415057; */
-    width: 2.2rem;
-    height: 2.2rem;
+    width: 2rem;
+    height: 2rem;
     border-radius: 8px;
     overflow: hidden !important;
     /* margin-left: -4px; */
@@ -37,8 +37,8 @@
 }
 
 #squareHud .component .icon {
-    width: 1.2rem;
-    height: 1.2rem;
+    width: 1rem;
+    height: 1rem;
     z-index: 100 !important;
     margin: 0.5rem;
 }
@@ -62,6 +62,7 @@
     height: 1.4rem;
     z-index: -1;
     border-radius: 0 0 8px 8px;
+    transition: ease-in-out .5s;
 }
 
 #health div.progress {
@@ -86,4 +87,13 @@
 
 #stamina div.progress {
     background-color: #439e33 !important;
+}
+
+
+#talkIcon {
+    position: absolute;
+    right: 10px;
+    bottom: 50px;
+    color: white;
+    opacity: 60%;
 }
